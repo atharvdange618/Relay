@@ -9,6 +9,8 @@ import { handleMessage } from "./handlers/message.js";
 import type { ParsedFrame } from "../../../packages/protocol/src/types.js";
 import { Connection } from "../../../packages/transport/src/connection/connection.js";
 import { config } from "./config.js";
+import { logger } from "./observability/logger.js";
+import { metrics } from "./observability/metrics.js";
 
 /**
  * Relay TCP Server
@@ -36,9 +38,9 @@ export class RelayServer {
   start(): Promise<void> {
     return new Promise((resolve) => {
       this.server.listen(config.port, config.host, () => {
-        console.log(`Relay server listening on ${config.host}:${config.port}`);
+        logger.info(`Relay server listening on ${config.host}:${config.port}`);
         if (config.debug) {
-          console.log("Debug mode enabled (RELAY_DEBUG=1)");
+          logger.info("Debug mode enabled (RELAY_DEBUG=1)");
         }
         resolve();
       });
@@ -50,7 +52,10 @@ export class RelayServer {
    */
   async stop(): Promise<void> {
     return new Promise((resolve, reject) => {
-      console.log("Shutting down Relay server...");
+      logger.info("Shutting down Relay server...");
+
+      // Print metrics before shutdown
+      metrics.print();
 
       // Close all connections
       this.connectionManager.closeAll();
@@ -60,7 +65,7 @@ export class RelayServer {
         if (err) {
           reject(err);
         } else {
-          console.log("Server stopped");
+          logger.info("Server stopped");
           resolve();
         }
       });
@@ -74,39 +79,46 @@ export class RelayServer {
     // Create Connection wrapper
     const connection = this.connectionManager.createConnection(socket);
 
-    if (config.debug) {
-      console.log(
-        `[${connection.connectionId}] New connection from ${socket.remoteAddress}`
-      );
-    }
+    logger.connection(
+      connection.connectionId,
+      "Connected",
+      { remoteAddress: socket.remoteAddress }
+    );
 
     // Wire up frame handler
     connection.on("frame", (frame: ParsedFrame) => {
+      logger.frame(connection.connectionId, "←", frame);
+      metrics.messageProcessed();
       this.handleFrame(connection, frame);
     });
 
     // Handle errors
     connection.on("error", (error) => {
-      console.error(`[${connection.connectionId}] Error:`, error.reason);
+      logger.error(`[${connection.connectionId}] Error: ${error.reason}`, {
+        type: error.type,
+        fatal: error.fatal,
+      });
     });
 
     // Handle close
     connection.on("close", (stats) => {
-      if (config.debug) {
-        console.log(
-          `[${connection.connectionId}] Closed. Sent: ${stats.bytesSent}B, Received: ${stats.bytesReceived}B`
-        );
-      }
+      metrics.connectionClosed();
+      metrics.bytesSent(stats.bytesSent);
+      metrics.bytesReceived(stats.bytesReceived);
+
+      logger.connection(connection.connectionId, "Closed", {
+        sent: `${stats.bytesSent}B`,
+        received: `${stats.bytesReceived}B`,
+      });
 
       // Clean up rooms
       this.roomManager.leaveAllRooms(connection.connectionId);
+      metrics.setRoomCount(this.roomManager.getRoomCount());
     });
 
     // Handle heartbeat
     connection.on("heartbeat", () => {
-      if (config.debug) {
-        console.log(`[${connection.connectionId}] ❤️  Heartbeat received`);
-      }
+      logger.debug(`[${connection.connectionId}] ❤️  Heartbeat received`);
     });
   }
 
@@ -114,12 +126,6 @@ export class RelayServer {
    * Route frame to appropriate handler
    */
   private handleFrame(connection: Connection, frame: ParsedFrame): void {
-    if (config.debug) {
-      console.log(
-        `[${connection.connectionId}] Frame type: ${MessageType[frame.type]}`
-      );
-    }
-
     try {
       switch (frame.type) {
         case MessageType.HELLO:
@@ -142,7 +148,7 @@ export class RelayServer {
           break;
 
         default:
-          console.warn(
+          logger.warn(
             `[${connection.connectionId}] Unknown message type: ${frame.type}`
           );
           connection.send(MessageType.ERROR, {
@@ -150,7 +156,7 @@ export class RelayServer {
           });
       }
     } catch (err) {
-      console.error(`[${connection.connectionId}] Handler error:`, err);
+      logger.error(`[${connection.connectionId}] Handler error`, err);
       connection.send(MessageType.ERROR, {
         error: "Internal server error",
       });

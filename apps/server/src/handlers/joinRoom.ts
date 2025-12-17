@@ -2,6 +2,7 @@ import { Connection } from "../../../../packages/transport/src/connection/connec
 import { MessageType } from "../../../../packages/protocol/src/constants.js";
 import type { ParsedFrame } from "../../../../packages/protocol/src/types.js";
 import { RoomManager } from "../rooms/roomManager.js";
+import { metrics } from "../observability/metrics.js";
 
 /**
  * Handle JOIN_ROOM message
@@ -33,12 +34,11 @@ export function handleJoinRoom(
 
   // Join the room
   roomManager.joinRoom(connection, roomName);
+  metrics.setRoomCount(roomManager.getRoomCount());
 
   // Send confirmation
   connection.send(MessageType.JOIN_ROOM, {
     status: "joined",
     room: roomName,
   });
-
-  console.log(`[${connection.connectionId}] Joined room: ${roomName}`);
 }

@@ -1,5 +1,6 @@
 import { Room } from "./room.js";
 import { Connection } from "../../../../packages/transport/src/connection/connection.js";
+import { logger } from "../observability/logger.js";
 
 /**
  * RoomManager manages all rooms in the system.
@@ -22,6 +23,7 @@ export class RoomManager {
     if (!room) {
       room = new Room(roomName);
       this.rooms.set(roomName, room);
+      logger.info(`Room '${roomName}' created`);
     }
 
     // Add connection to room
@@ -55,6 +57,7 @@ export class RoomManager {
     // Cleanup empty room
     if (room.isEmpty()) {
       this.rooms.delete(roomName);
+      logger.info(`Room '${roomName}' deleted (empty)`);
     }
   }
 

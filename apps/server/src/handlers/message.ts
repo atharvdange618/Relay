@@ -58,6 +58,4 @@ export function handleMessage(
     },
     connection.connectionId
   );
-
-  console.log(`[${connection.connectionId}] Message to room ${roomName}`);
 }

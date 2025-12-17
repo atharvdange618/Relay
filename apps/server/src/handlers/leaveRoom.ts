@@ -2,6 +2,7 @@ import { Connection } from "../../../../packages/transport/src/connection/connec
 import { MessageType } from "../../../../packages/protocol/src/constants.js";
 import type { ParsedFrame } from "../../../../packages/protocol/src/types.js";
 import { RoomManager } from "../rooms/roomManager.js";
+import { metrics } from "../observability/metrics.js";
 
 /**
  * Handle LEAVE_ROOM message
@@ -26,12 +27,11 @@ export function handleLeaveRoom(
 
   // Leave the room
   roomManager.leaveRoom(connection.connectionId, roomName);
+  metrics.setRoomCount(roomManager.getRoomCount());
 
   // Send confirmation
   connection.send(MessageType.LEAVE_ROOM, {
     status: "left",
     room: roomName,
   });
-
-  console.log(`[${connection.connectionId}] Left room: ${roomName}`);
 }

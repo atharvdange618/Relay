@@ -1,5 +1,6 @@
 import { Connection } from "../../../../packages/transport/src/connection/connection.js";
 import { MessageType } from "../../../../packages/protocol/src/constants.js";
+import { logger } from "../observability/logger.js";
 
 /**
  * Room represents a group of connections that can exchange messages.
@@ -24,6 +25,10 @@ export class Room {
 
     this.members.set(connection.connectionId, connection);
 
+    logger.info(
+      `[${connection.connectionId}] Joined room '${this.name}' (${this.members.size} members)`
+    );
+
     // Notify others
     this.broadcast(
       {
@@ -44,6 +49,10 @@ export class Room {
 
     this.members.delete(connectionId);
 
+    logger.info(
+      `[${connectionId}] Left room '${this.name}' (${this.members.size} members remaining)`
+    );
+
     // Notify others
     this.broadcast({
       type: "userLeft",
@@ -59,9 +68,17 @@ export class Room {
    * @param excludeConnectionId - Optional connection to exclude
    */
   broadcast(payload: unknown, excludeConnectionId?: string): void {
+    let recipientCount = 0;
     for (const [connId, connection] of this.members) {
       if (connId === excludeConnectionId) continue;
       connection.send(MessageType.MESSAGE, payload);
+      recipientCount++;
+    }
+
+    if (recipientCount > 0) {
+      logger.debug(
+        `Broadcasting to ${recipientCount} member(s) in '${this.name}'`
+      );
     }
   }
 
