@@ -51,23 +51,96 @@ relay/
 
 ## Quick Start
 
-_Implementation in progress. See [thought-process/](thought-process/) for complete design specifications._
+### Prerequisites
+
+- Node.js v18+
+- No additional dependencies (uses Node core modules only)
+
+### Installation
 
 ```bash
-# Start server
+git clone https://github.com/atharvdange618/Relay.git
+cd Relay
+npm install
+```
+
+### Running the Server
+
+```bash
+# Start server (default: localhost:4000)
 npm run server
 
-# Connect client
-npm run client connect localhost:4000
-npm run client join physics-nerds
-npm run client send "hello world"
-
 # Debug mode (verbose logging)
-RELAY_DEBUG=1 npm run server
-
-# Stress test
-npm run demo:chaos
+npm run server:debug
 ```
+
+The server will start on port 4000 and display connection and message activity.
+
+### Using the CLI Client
+
+In a separate terminal:
+
+```bash
+# Connect to server (default: localhost:4000)
+npm run client
+
+# Or specify host/port (without flags)
+npm run client localhost 4000
+```
+
+Once connected, use these commands in the CLI:
+
+```
+join <room>       - Join a room (e.g., "join physics-nerds")
+send <message>    - Send message to current room
+leave <room>      - Leave a room
+heartbeat         - Send heartbeat to server
+help              - Show available commands
+quit / exit       - Disconnect and exit
+```
+
+### Demo: Two Clients Chatting
+
+**Terminal 1** - Start server:
+
+```bash
+npm run server
+```
+
+**Terminal 2** - First client:
+
+```bash
+npm run client
+> join physics
+> send Hello from client 1!
+```
+
+**Terminal 3** - Second client:
+
+```bash
+npm run client
+> join physics
+> send Hello from client 2!
+```
+
+Both clients will see each other's messages in real-time.
+
+### Available Commands
+
+```bash
+npm run server        # Start production server
+npm run server:dev    # Start server with auto-reload
+npm run server:debug  # Start server with verbose logging
+npm run client        # Connect client to localhost:4000
+npm run typecheck     # Verify TypeScript types
+npm run clean         # Clean build artifacts
+```
+
+### Troubleshooting
+
+- **Port already in use**: The server defaults to port 4000. Kill any processes using this port or modify `apps/server/src/config.ts`
+- **Connection refused**: Ensure the server is running before starting the client
+- **TypeScript errors**: Run `npm run typecheck` to verify all types are correct
 
 ## Why This Exists
 
@@ -93,7 +166,7 @@ If you clone this repo, you should understand what it does, how it behaves, and 
 
 - **Language**: TypeScript (strict mode)
 - **Runtime**: Node.js (core modules only)
-- **Testing**: Vitest
+- **Build Tool**: tsx for TypeScript execution
 - **Modules**: ES modules (`import`/`export`)
 
 ## Success Criteria

@@ -1,0 +1,35 @@
+{
+  "name": "relay",
+  "version": "0.1.0",
+  "description": "A real-time TCP message relay engine built to deeply understand Node.js at the systems level.",
+  "homepage": "https://github.com/atharvdange618/Relay#readme",
+  "bugs": {
+    "url": "https://github.com/atharvdange618/Relay/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atharvdange618/Relay.git"
+  },
+  "license": "MIT",
+  "author": "Atharv Dange",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "server": "tsx apps/server/src/index.ts",
+    "server:dev": "tsx watch apps/server/src/index.ts",
+    "server:debug": "RELAY_DEBUG=1 tsx apps/server/src/index.ts",
+    "client": "tsx apps/client/src/index.ts",
+    "demo": "echo 'Start server in one terminal: npm run server' && echo 'Then run client in another: npm run client'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "tsx": "^4.21.0"
+  }
+}

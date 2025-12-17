@@ -1,0 +1,13 @@
+{
+  "name": "@relay/server",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "bin": {
+    "relay-server": "./src/index.ts"
+  },
+  "scripts": {
+    "start": "node src/index.ts",
+    "dev": "node --watch src/index.ts"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@relay/client",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "bin": {
+    "relay-client": "./src/index.ts"
+  },
+  "scripts": {
+    "start": "node src/index.ts"
+  }
+}
