@@ -23,6 +23,9 @@
     "server:debug": "RELAY_DEBUG=1 tsx apps/server/src/index.ts",
     "client": "tsx apps/client/src/index.ts",
     "demo": "echo 'Start server in one terminal: npm run server' && echo 'Then run client in another: npm run client'",
+    "demo:chaos": "tsx scripts/chaos.ts",
+    "demo:load": "tsx scripts/load.ts",
+    "demo:fragmentation": "tsx scripts/fragmentation.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
