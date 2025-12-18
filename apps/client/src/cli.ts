@@ -55,15 +55,15 @@ export class RelayCLI {
 
     switch (frame.type) {
       case MessageType.HELLO:
-        console.log(`🤝 Server says:`, frame.payload);
+        console.log(`Server says:`, frame.payload);
         break;
 
       case MessageType.JOIN_ROOM:
-        console.log(`✅ Joined room:`, frame.payload);
+        console.log(`Joined room:`, frame.payload);
         break;
 
       case MessageType.LEAVE_ROOM:
-        console.log(`👋 Left room:`, frame.payload);
+        console.log(`Left room:`, frame.payload);
         break;
 
       case MessageType.MESSAGE:
@@ -71,7 +71,7 @@ export class RelayCLI {
         break;
 
       case MessageType.ERROR:
-        console.log(` Error:`, frame.payload);
+        console.log(`Error:`, frame.payload);
         break;
 
       default:
@@ -96,12 +96,12 @@ export class RelayCLI {
 
     // Handle room notifications (userJoined, userLeft)
     if (msg.type === "userJoined") {
-      console.log(`\n✅ [${msg.room}] ${msg.connectionId} joined the room`);
+      console.log(`\n[${msg.room}] ${msg.connectionId} joined the room`);
       return;
     }
 
     if (msg.type === "userLeft") {
-      console.log(`\n👋 [${msg.room}] ${msg.connectionId} left the room`);
+      console.log(`\n[${msg.room}] ${msg.connectionId} left the room`);
       return;
     }
 
