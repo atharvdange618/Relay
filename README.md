@@ -4,7 +4,7 @@ A real-time TCP message relay engine built to deeply understand Node.js at the s
 
 ## What is Relay?
 
-Relay is **infrastructure** — a production-grade message relay server that demonstrates:
+Relay is **infrastructure** a production-grade message relay server that demonstrates:
 
 - Binary frame-based protocol design
 - TCP stream handling with backpressure
